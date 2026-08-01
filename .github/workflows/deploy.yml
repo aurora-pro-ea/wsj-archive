@@ -1,0 +1,38 @@
+name: Deploy archive to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "dist/**"
+      - "validate_site.py"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Validate and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate generated site
+        run: python3 validate_site.py dist
+
+      - name: Deploy to existing Cloudflare Pages project
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=wushujian
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

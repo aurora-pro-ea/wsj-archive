@@ -11,8 +11,9 @@ from pathlib import Path
 from extra_articles import parse_extra_articles
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 OUT = Path(__file__).resolve().parent / "dist"
+SITE_URL = "https://wushujian.pages.dev"
 SOURCE_FILES = [
     ROOT / "2024年文章整理.md",
     ROOT / "2025年图片文章整理.md",
@@ -336,7 +337,7 @@ def build() -> tuple[list[dict], Path]:
     )
     (OUT / "robots.txt").write_text("User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n", encoding="utf-8")
     sitemap_urls = ["/", "/2024/", "/2025/", "/2026/"] + [a["url"] for a in articles]
-    sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" + "".join(f"<url><loc>__SITE_URL__{u}</loc></url>" for u in sitemap_urls) + "</urlset>\n"
+    sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" + "".join(f"<url><loc>{SITE_URL}{u}</loc></url>" for u in sitemap_urls) + "</urlset>\n"
     (OUT / "sitemap.xml").write_text(sitemap, encoding="utf-8")
     (OUT / "site.webmanifest").write_text(json.dumps({"name": "WSJ文章档案", "short_name": "WSJ档案", "start_url": "/", "display": "standalone", "background_color": "#f4f0e8", "theme_color": "#171717", "lang": "zh-CN"}, ensure_ascii=False), encoding="utf-8")
     (OUT / "favicon.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#171717"/><text x="7" y="42" fill="#f7f2e9" font-size="21" font-family="Georgia,serif">WSJ</text></svg>', encoding="utf-8")
