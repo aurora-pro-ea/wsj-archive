@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from extra_articles import parse_extra_articles
+from wechat_imports import parse_downloaded_articles, title_key
 
 
 ROOT = Path(__file__).resolve().parent
@@ -217,6 +218,14 @@ def build() -> tuple[list[dict], Path]:
     for source in SOURCE_FILES:
         articles.extend(parse_file(source))
     articles.extend(parse_extra_articles())
+    downloaded_articles = parse_downloaded_articles(ROOT / "wechat-imports")
+    downloaded_keys = {(article["year"], title_key(article["title"])) for article in downloaded_articles}
+    articles = [
+        article
+        for article in articles
+        if (article["year"], title_key(article["title"])) not in downloaded_keys
+    ]
+    articles.extend(downloaded_articles)
     articles.sort(key=lambda item: (item["date"], item["title"]))
 
     counters: defaultdict[int, int] = defaultdict(int)
